@@ -192,18 +192,21 @@ Additional rules:
   it as a fact only.
 - Call fetch_category_schema only when you need to check spec definitions.
   Do not call it upfront for every investigation.
-- If a source product exists, use product_display_id from bl_core to fetch it.
+- If source_product_display_id is null or empty, check referred_page. If it
+  contains "proddetail", extract the product display ID from the URL — it is
+  the numeric sequence immediately before ".html". Example:
+  "https://www.indiamart.com/proddetail/cap-for-tmt-bars-14334880348.html"
+  → product display ID is 14334880348. Use this ID to fetch product data.
+  Note in the report that the ID was extracted from the referred page URL.
+- If source_product_display_id is null and referred_page does not contain
+  "proddetail", skip all product fetching steps.
 - Separate facts from inferences in your output.
 - If no issue is found from the evidence, say so clearly.
 - If fetch_bl_specs returns empty or no rows, do not produce a spec table.
   Write exactly one line: "Spec data is not available for this buylead —
   specs are only retained for the last 30 days." Then move on to the next
   attribute if selected. Do not attempt any spec reasoning.
-- Always include bl_date, call_recording, and referred_page from bl_core in the
-  report header. Render call_recording and referred_page as markdown hyperlinks
-  — [Listen to Recording](url) and [View Page](url). Skip the link if the value
-  is null or empty.
-
+- Do not ask the user about call transcripts or recording verification.
 """
 
     initial_user_message = f"""

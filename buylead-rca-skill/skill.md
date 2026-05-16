@@ -43,10 +43,6 @@ On-demand inputs (fetched only when user confirms):
 
 - seller_category_specs — seller-side category spec definitions; fetch only when
   investigating product-sourced specs and user wants this comparison
-- vani_call_transcript — transcript or summary of the VANI call linked to this BL;
-  fetch only when "Buyer Filled Details" spec is present and user wants to verify
-- call_recording — audio or full transcript of the call; fetch only when user
-  explicitly requests recording review after transcript check
 
 
 ## Outputs
@@ -70,8 +66,6 @@ MCAT_SPEC_QUERY_ID           — Returns buyer-side MCAT spec rules for the cate
 SOURCE_PRODUCT_QUERY_ID      — Returns source product title, price, specs with dates
 CATEGORY_MEDIAN_PRICE_QUERY_ID — Returns median price for the BL category
 SELLER_CATEGORY_SPEC_QUERY_ID — Returns seller-side category spec definitions (on-demand)
-VANI_TRANSCRIPT_QUERY_ID     — Returns VANI call transcript or summary (on-demand)
-CALL_RECORDING_QUERY_ID      — Returns call recording or full transcript (on-demand)
 
 
 ## Core Workflow
@@ -100,7 +94,24 @@ references/system-spec-list.md:
 Also identify any spec named "Buyer Filled Details" — handle separately in step S5.
 
 
-#### Step S2. Classify fill source
+#### Step S0. Resolve source product ID
+
+Before any product fetching, check whether a source product ID is available:
+
+1. If source_product_display_id is present and not null → use it directly.
+2. If source_product_display_id is null or empty:
+   - Check referred_page.
+   - If referred_page contains "proddetail" → extract the product display ID from
+     the URL. The ID is the numeric sequence immediately before ".html" in the URL.
+     Example: "https://www.indiamart.com/proddetail/cap-for-tmt-bars-14334880348.html"
+     → product display ID is 14334880348.
+   - Use this extracted ID for all subsequent product data fetching steps.
+   - Note in the report: "Source product ID extracted from referred page URL."
+3. If source_product_display_id is null and referred_page does not contain
+   "proddetail" or is null → no product source available. Skip all product
+   fetching steps and note this in the report.
+
+
 
 For each category spec, read eto_attribute and map to a source class using
 references/eto-attribute-codes.md. Record source class and plain label.
@@ -142,23 +153,7 @@ For specs with source class LEAP and eto_attribute 230, 240, or 260:
    Do not conclude the BL spec is wrong based on this alone.
 
 
-#### Step S5. For "Buyer Filled Details" spec — VANI verification
-
-If a spec named "Buyer Filled Details" is present:
-
-1. Check the eto_attribute. If it falls in the VANI range (212–215), note that
-   this spec is expected to have originated from a VANI call.
-2. Present to user: "This spec was filled by VANI. Do you want to check the call
-   transcript to verify this detail was discussed in the call?"
-   If yes → call VANI_TRANSCRIPT_QUERY_ID (on-demand).
-   Check whether the spec value appears in the transcript summary.
-   Record: confirmed in transcript / not found in transcript / transcript unavailable.
-3. Present to user: "Do you want to listen to the call recording to confirm?"
-   If yes → call CALL_RECORDING_QUERY_ID (on-demand).
-   This is a separate step — do not call this automatically after the transcript.
-
-
-#### Step S6. Compile specs section of report
+#### Step S5. Compile specs section of report
 
 For each spec field produce one row in this exact column order:
 spec_name | spec_value | spec_type | fill_source | category_match_status |
@@ -305,8 +300,6 @@ Record:
 | Buyer spec tandem check        | Checks spec values against title and category together, not in isolation |
 | Product spec trace             | Shows product spec value, date added, and LEAP copy accuracy         |
 | Seller spec comparison         | On-demand comparison of product specs vs seller-side category specs  |
-| VANI spec verification         | Confirms Buyer Filled Details against call transcript (on-demand)    |
-| Call recording review          | Separate on-demand tool to review call recording                     |
 | Title tandem check             | Checks title against specs and category for contradictions           |
 | AOV calculation                | Derives expected AOV from product price and quantity; compares to actual |
 | Fact-only output               | No verdicts — observations and inferences only                       |
@@ -320,8 +313,6 @@ Record:
   checking against category rules alone misses spec-title contradictions.
 - Do not call SELLER_CATEGORY_SPEC_QUERY_ID at the start. Call it only when the
   user is investigating product-sourced specs and explicitly wants this comparison.
-- Do not call VANI_TRANSCRIPT_QUERY_ID or CALL_RECORDING_QUERY_ID automatically.
-  Always present the option to the user and wait for confirmation.
 - For AOV, always attempt the product_price-based calculation first. Use
   category_median_price as a fallback only if product_price is unavailable, and
   note the fallback in the report.
