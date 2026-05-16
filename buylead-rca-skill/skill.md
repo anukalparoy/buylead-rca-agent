@@ -9,10 +9,9 @@ description: >
   with reasoning and inferences per attribute.
 ---
 
-1. Receive the buylead ID and the attribute(s) the user wants to investigate:
-   Specs, BL Title, AOV — or all three.
-2. Load the pre-fetched base inputs for the selected attribute(s).
-3. Run the attribute-specific workflow below.
+1. Run scripts/fetch_data.py with the BL ID to fetch base BL context (bl_core).
+2. Run scripts/run_agent.py with the bl_core output and the issue to investigate.
+3. The agent reads this skill, decides which tools to call, and fetches data on demand.
 4. Where on-demand tool calls are indicated, wait for user confirmation before calling.
 5. Compile the report using assets/rca-report-template.md.
 
@@ -22,6 +21,9 @@ description: >
 Base inputs (always pre-fetched before skill runs):
 
 - buylead_id
+- bl_date — date the buylead was created
+- call_recording — link to the call recording associated with this BL; null if none
+- referred_page — link to the page from which this BL was referred; null if none
 - selected_attributes — one or more of: specs, bl_title, aov
 - bl_spec_data — list of spec fields; each entry contains:
     - spec_name, spec_value, eto_attribute
@@ -49,10 +51,12 @@ On-demand inputs (fetched only when user confirms):
 
 ## Outputs
 
-A structured report containing one section per investigated attribute:
-- Specs section: per-spec fact table with fill source, category alignment, and inferences
-- BL Title section: source comparison, tandem check result, absurdity flag if applicable
-- AOV section: expected AOV calculation, actual vs expected comparison, inference
+A structured report containing:
+- Header: buylead_id, bl_date, call_recording link (if available), referred_page link (if available)
+- One section per investigated attribute:
+  - Specs section: per-spec fact table, summary paragraph, conditional category and product spec tables
+  - BL Title section: source comparison, tandem check result, absurdity flag if applicable
+  - AOV section: expected AOV calculation, actual vs expected comparison, inference
 
 Use the template in assets/rca-report-template.md.
 
@@ -76,9 +80,18 @@ CALL_RECORDING_QUERY_ID      — Returns call recording or full transcript (on-d
 
 ### ATTRIBUTE 1 — Specs
 
-#### Step S1. Classify each spec
+#### Step S1. Check if specs are available
 
-Split bl_spec_data into two groups using references/system-spec-list.md:
+If fetch_bl_specs returns empty or no rows, do not produce a spec table.
+Instead write exactly this and move on:
+
+  "Spec data is not available for this buylead. BL specs are only retained for
+  buyleads created in the last 30 days. Spec investigation cannot be performed."
+
+Do not attempt steps S2–S6. Proceed to the next selected attribute if any.
+
+If specs are returned, split bl_spec_data into two groups using
+references/system-spec-list.md:
 
 - System specs (Business Type, Probable Requirement Type, Probable Order Value):
   record fill source only; skip all further steps for these fields.
@@ -147,13 +160,34 @@ If a spec named "Buyer Filled Details" is present:
 
 #### Step S6. Compile specs section of report
 
-For each spec field produce one row:
-spec_name | spec_value | spec_type | fill_source | eto_attribute |
-source_product_value | date_added_on_product | category_match_status |
-tandem_sense_check | notes
+For each spec field produce one row in this exact column order:
+spec_name | spec_value | spec_type | fill_source | category_match_status |
+source_product_value | date_added_on_product | tandem_sense_check
+
+Do not include eto_attribute, vani_transcript_status, or notes columns.
 
 Then write a summary paragraph: how many specs were buyer-filled, how many were
 product-sourced, any tensions observed across specs, title, and category.
+
+After the spec table and summary, add the following conditional tables:
+
+**Conditional Table 1 — Category Specs**
+Show this table if any spec in the BL has category_match_status of "Matches category spec"
+or "Does not match category spec" (i.e. the category schema was fetched and has data).
+Show ALL specs defined for this MCAT category, not just the ones on the BL.
+
+Format:
+| Spec Name | Allowed Values |
+where Allowed Values lists all valid values for that spec in comma-separated form.
+
+**Conditional Table 2 — Source Product Specs**
+Show this table if all category specs on the BL are product-sourced (LEAP eto_attribute
+230, 240, or 260). Show ALL specs present on the source product, not just the ones
+copied to the BL.
+
+Format:
+| Spec Name | Spec Values |
+where Spec Values lists all values for that spec in comma-separated form.
 
 ---
 
@@ -297,6 +331,10 @@ Record:
   speculate on what the original value was.
 - If eto_attribute is null or missing, record fill source as Unknown and set a
   note for manual investigation.
+- If fetch_bl_specs returns empty, do not render a spec table or attempt any
+  spec reasoning. Write the unavailability message and stop the specs section.
+  This is expected behaviour for BLs older than 30 days — do not treat it as
+  an error.
 
 
 ## Reference Files
@@ -308,3 +346,5 @@ Record:
 | references/output-schema.md               | Field definitions for the full RCA report                        |
 | references/second-workflow-walkthrough.md | How this skill applies to Catalog QA spec validation             |
 | assets/rca-report-template.md             | Report scaffold this skill fills in                              |
+| scripts/fetch_data.py                     | Fetches bl_core for a given BL ID; outputs bl_core.json          |
+| scripts/run_agent.py                      | Runs the agentic RCA loop; reads bl_core.json, writes rca_report.md |

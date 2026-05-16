@@ -195,6 +195,15 @@ Additional rules:
 - If a source product exists, use product_display_id from bl_core to fetch it.
 - Separate facts from inferences in your output.
 - If no issue is found from the evidence, say so clearly.
+- If fetch_bl_specs returns empty or no rows, do not produce a spec table.
+  Write exactly one line: "Spec data is not available for this buylead —
+  specs are only retained for the last 30 days." Then move on to the next
+  attribute if selected. Do not attempt any spec reasoning.
+- Always include bl_date, call_recording, and referred_page from bl_core in the
+  report header. Render call_recording and referred_page as markdown hyperlinks
+  — [Listen to Recording](url) and [View Page](url). Skip the link if the value
+  is null or empty.
+
 """
 
     initial_user_message = f"""

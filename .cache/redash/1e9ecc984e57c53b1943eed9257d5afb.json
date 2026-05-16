@@ -1,0 +1,32 @@
+[
+  {
+    "product_display_id": 2853132238455.0,
+    "product_id": 265921385.0,
+    "product_name": "ruhi basmati rice",
+    "source_product_mcat_id": 2093.0,
+    "product_spec_id": 1246762.0,
+    "product_spec_name": "Color",
+    "product_option_id": 8420941.0,
+    "product_option_value": "Creamy White"
+  },
+  {
+    "product_display_id": 2853132238455.0,
+    "product_id": 265921385.0,
+    "product_name": "ruhi basmati rice",
+    "source_product_mcat_id": 2093.0,
+    "product_spec_id": 2594666.0,
+    "product_spec_name": "Packaging Type",
+    "product_option_id": 13039345.0,
+    "product_option_value": "Bag"
+  },
+  {
+    "product_display_id": 2853132238455.0,
+    "product_id": 265921385.0,
+    "product_name": "ruhi basmati rice",
+    "source_product_mcat_id": 2093.0,
+    "product_spec_id": 1005930.0,
+    "product_spec_name": "Speciality",
+    "product_option_id": 8065952.0,
+    "product_option_value": "long grain"
+  }
+]

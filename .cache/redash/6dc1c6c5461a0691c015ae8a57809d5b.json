@@ -1,0 +1,28 @@
+[
+  {
+    "bl_display_id": 141821371595,
+    "bl_title": "India Basmati Rice",
+    "bl_mcat_id": 2093,
+    "quantity": "80",
+    "quantity_unit": "Kg",
+    "bl_approval_date": "2026-04-02T16:31:19.516",
+    "tov_flag": "Y",
+    "model_predicted_aov_band": "3,000 to 10,000",
+    "final_aov_band": "Rs. 3,200 - 4,800",
+    "product_price": 40.0,
+    "final_price_range": "PDP - MCAT Q1",
+    "predicted_aov_median": 4000.0,
+    "category_bl_median": -1.0,
+    "category_bl_q1": 3200.0,
+    "category_bl_q3": 4800.0,
+    "population_median": 85.0,
+    "population_q1": 60.0,
+    "population_q3": 120.0,
+    "caps_price_q1": -1.0,
+    "caps_price_q3": -1.0,
+    "actual_requirement_type": null,
+    "predicted_requirement_type": 3,
+    "predicted_req_typ_probability": 0.6,
+    "retail_flag": 0.0
+  }
+]

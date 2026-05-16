@@ -1,9 +1,11 @@
 # BL RCA Report
 
 **Buylead ID:** {{buylead_id}}
+**BL Date:** {{bl_date}}
 **Investigated at:** {{investigated_at}}
 **Attributes investigated:** {{attributes_investigated}}
-**Investigated by:** {{investigated_by}}
+{{#if call_recording}}**Call Recording:** [Listen to Recording]({{call_recording}}){{/if}}
+{{#if referred_page}}**Referred Page:** [View Page]({{referred_page}}){{/if}}
 
 ---
 
@@ -11,20 +13,44 @@
 
 {{#if specs_investigated}}
 
-### Spec Summary
+### Spec Table
 
-{{specs_summary_paragraph}}
-
-### Spec Detail
-
-| Spec Name | Spec Value | Type | Fill Source | ETO | Product Value | Date Added on Product | Category Match | Tandem Sense Check | VANI Transcript | Notes |
-|-----------|------------|------|-------------|-----|---------------|----------------------|----------------|-------------------|-----------------|-------|
+| Spec Name | Spec Value | Type | Fill Source | Category Match | Product Value | Date Added on Product | Tandem Sense Check |
+|-----------|------------|------|-------------|----------------|---------------|-----------------------|--------------------|
 {{#each spec_rows}}
-| {{spec_name}} | {{spec_value}} | {{spec_type}} | {{fill_source}} | {{eto_attribute}} | {{source_product_value}} | {{date_added_on_product}} | {{category_match_status}} | {{tandem_sense_check}} | {{vani_transcript_status}} | {{notes}} |
+| {{spec_name}} | {{spec_value}} | {{spec_type}} | {{fill_source}} | {{category_match_status}} | {{source_product_value}} | {{date_added_on_product}} | {{tandem_sense_check}} |
 {{/each}}
 
+### Summary
+{{specs_summary_paragraph}}
+
+{{#if show_category_spec_table}}
+### Category Specs — {{mcat_category_name}}
+
+All specs defined for this category:
+
+| Spec Name | Allowed Values |
+|-----------|----------------|
+{{#each category_spec_rows}}
+| {{spec_name}} | {{allowed_values}} |
+{{/each}}
+{{/if}}
+
+{{#if show_product_spec_table}}
+### Source Product Specs — {{source_product_id}}
+
+All specs on the source product:
+
+| Spec Name | Spec Values |
+|-----------|-------------|
+{{#each product_spec_rows}}
+| {{spec_name}} | {{spec_values}} |
+{{/each}}
+{{/if}}
+
 {{else}}
-Specs not investigated in this report.
+Spec data is not available for this buylead. BL specs are only retained for
+buyleads created in the last 30 days. Spec investigation cannot be performed.
 {{/if}}
 
 ---
