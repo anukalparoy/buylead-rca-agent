@@ -207,7 +207,10 @@ Additional rules:
   specs are only retained for the last 30 days." Then move on to the next
   attribute if selected. Do not attempt any spec reasoning.
 - Do not ask the user about call transcripts or recording verification.
-- Do not ask the user about comparing product specs against seller-side category specs. Skip that step entirely.
+- For AOV calculation, use product_price in this priority order: first from
+  fetch_aov_evidence, then from fetch_source_product_full (which returns
+  product_price and product_unit), then fall back to category_median_price.
+  Always state which source the product_price came from in the inference.
 """
 
     initial_user_message = f"""

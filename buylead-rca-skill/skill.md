@@ -145,7 +145,12 @@ For specs with source class LEAP and eto_attribute 230, 240, or 260:
    - Not found → LEAP mapped a field not present on the source product.
      Note this.
 
-
+2. Ask user: "Do you want to compare product specs against seller-side category
+   specs to check if the product spec itself is correctly defined?"
+   If yes → call SELLER_CATEGORY_SPEC_QUERY_ID (on-demand).
+   Once fetched, check whether the product spec value aligns with the seller-side
+   category spec definition. Record match / mismatch / not defined as a fact.
+   Do not conclude the BL spec is wrong based on this alone.
 
 
 #### Step S5. Compile specs section of report
@@ -242,19 +247,20 @@ This step uses category_median_price only — no calculation yet.
 
 #### Step A2. Calculate expected AOV
 
-Expected AOV is derived from three inputs:
-- category_median_price — the median unit price for this category
-- source_product_data.product_price — the price of the specific product enquired
-- bl_quantity — the quantity the buyer filled on the BL
+Expected AOV is derived from these inputs in priority order:
+
+1. AOV evidence table — product_price from fetch_aov_evidence (most accurate)
+2. Source product full data — product_price from fetch_source_product_full (fallback)
+3. Category median price — category_median_price (last resort fallback)
 
 Calculation:
   expected_aov = product_price × bl_quantity
 
-If product_price is unavailable, fall back to:
-  expected_aov = category_median_price × bl_quantity
+where product_price is taken from the first source above that returns a non-null value.
 
 Record:
-- product_price used (or category_median_price if fallback)
+- product_price used and which source it came from
+- product_unit from source product full data (if available)
 - bl_quantity
 - expected_aov calculated
 - bl_aov (actual)
