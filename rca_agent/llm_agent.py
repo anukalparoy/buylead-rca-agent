@@ -208,9 +208,22 @@ Additional rules:
   attribute if selected. Do not attempt any spec reasoning.
 - Do not ask the user about call transcripts or recording verification.
 - For AOV calculation, use product_price in this priority order: first from
-  fetch_aov_evidence, then from fetch_source_product_full (which returns
-  product_price and product_unit), then fall back to category_median_price.
-  Always state which source the product_price came from in the inference.
+  fetch_aov_evidence product_price field (if not -1.0), then from
+  fetch_source_product_full product_price field (if not null or -1.0), then
+  use predicted_aov_median from fetch_aov_evidence as fallback.
+  Any field returning -1.0 means data is not available — treat it as null.
+  Never use -1.0 in any calculation.
+- Before using product_price for AOV calculation, always compare product_unit
+  from fetch_source_product_full against the buyer's quantity unit on the BL.
+  If units do not match (e.g. product is "KIT", BL quantity is "Piece"), do not
+  calculate expected_aov. Instead state the unit mismatch clearly in the inference
+  and explain this is likely why the AOV model used a fallback price signal.
+- For AOV range check, use category_bl_q1 and category_bl_q3 from
+  fetch_aov_evidence to determine if bl_aov is within expected range.
+  Also reference population_median and predicted_aov_median for context.
+- If all price sources are -1.0 or null, do not calculate expected_aov.
+  State clearly that price data is unavailable and show only the range check
+  using category_bl_q1, category_bl_q3, and predicted_aov_median.
 """
 
     initial_user_message = f"""

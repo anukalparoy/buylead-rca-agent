@@ -249,33 +249,57 @@ This step uses category_median_price only — no calculation yet.
 
 Expected AOV is derived from these inputs in priority order:
 
-1. AOV evidence table — product_price from fetch_aov_evidence (most accurate)
-2. Source product full data — product_price from fetch_source_product_full (fallback)
-3. Category median price — category_median_price (last resort fallback)
+1. product_price from fetch_aov_evidence — use only if value is not -1.0
+2. product_price from fetch_source_product_full — use only if not null or -1.0
+3. predicted_aov_median from fetch_aov_evidence — last resort reference point
 
-Calculation:
-  expected_aov = product_price × bl_quantity
+Important: -1.0 is a sentinel value meaning "not available". Never use -1.0
+in any calculation. Treat it as null.
 
-where product_price is taken from the first source above that returns a non-null value.
+Before using product_price, always check unit compatibility:
+- Compare product_unit from fetch_source_product_full against bl_quantity_unit
+  from the BL specs (the unit the buyer specified).
+- If units match (e.g. both "Piece" or both "Kg") → product_price can be used
+  directly. Calculate: expected_aov = product_price × bl_quantity
+- If units do not match (e.g. product is "KIT", BL is "Piece") → product_price
+  cannot be directly applied. Note the unit mismatch and do not calculate
+  expected_aov using this price. Explain the mismatch in the inference.
+- If unit data is unavailable → proceed with calculation but note the caveat.
+
+If no valid product_price exists or units mismatch, use predicted_aov_median,
+category_bl_q1, and category_bl_q3 from fetch_aov_evidence to describe where
+the BL AOV sits relative to the category range.
 
 Record:
-- product_price used and which source it came from
-- product_unit from source product full data (if available)
-- bl_quantity
-- expected_aov calculated
-- bl_aov (actual)
-- difference: bl_aov − expected_aov, and percentage deviation
+- product_price and product_unit from source product
+- bl_quantity and bl_quantity_unit from BL specs
+- unit_match status: matched / mismatched / unknown
+- expected_aov calculated (or "not calculated — unit mismatch / price unavailable")
+- predicted_aov_median, category_bl_q1, category_bl_q3 for range context
+- difference and percentage deviation (only if expected_aov was calculated)
 
 
 #### Step A3. Inference
 
 Based on steps A1 and A2, produce an inference:
-- If bl_aov ≈ expected_aov → AOV appears consistent with product price and quantity.
-- If bl_aov >> expected_aov → possible causes: quantity entered is too high, product
-  price is an outlier, or buyer specified a bulk order not reflected in standard pricing.
-- If bl_aov << expected_aov → possible causes: quantity entered is too low, product
-  price used is lower than actual market rate, or AOV was auto-filled from a
-  different source.
+
+- If units matched and expected_aov was calculated:
+  - bl_aov ≈ expected_aov → AOV appears consistent with product price and quantity.
+  - bl_aov >> expected_aov → possible causes: quantity too high, product price
+    is an outlier, or buyer specified a bulk order not in standard pricing.
+  - bl_aov << expected_aov → possible causes: quantity too low, product price
+    lower than actual market rate, or AOV auto-filled from a different source.
+
+- If units mismatched:
+  State clearly: "Product price of Rs. X is per [product_unit] but BL quantity
+  is in [bl_unit]. Units do not match — direct price comparison is not valid.
+  This unit mismatch is likely why the AOV model did not use the product price
+  and fell back to a different price signal."
+  Then compare bl_aov against predicted_aov_median and category range for context.
+
+- If no price was available:
+  Compare bl_aov against predicted_aov_median, category_bl_q1, category_bl_q3
+  and state whether it falls within or outside the expected category range.
 
 State the inference clearly as a probable explanation, not a verdict.
 
