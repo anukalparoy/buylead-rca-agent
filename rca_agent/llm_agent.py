@@ -224,6 +224,10 @@ Additional rules:
 - If all price sources are -1.0 or null, do not calculate expected_aov.
   State clearly that price data is unavailable and show only the range check
   using category_bl_q1, category_bl_q3, and predicted_aov_median.
+  - When a source product ID is available (either from bl_core or extracted from
+  referred_page URL), always call both fetch_source_product_core AND
+  fetch_source_product_full. Never call one without the other. The full data
+  is needed for product price, unit, and spec comparison.
 """
 
     initial_user_message = f"""
