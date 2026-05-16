@@ -145,12 +145,7 @@ For specs with source class LEAP and eto_attribute 230, 240, or 260:
    - Not found → LEAP mapped a field not present on the source product.
      Note this.
 
-2. Ask user: "Do you want to compare product specs against seller-side category
-   specs to check if the product spec itself is correctly defined?"
-   If yes → call SELLER_CATEGORY_SPEC_QUERY_ID (on-demand).
-   Once fetched, check whether the product spec value aligns with the seller-side
-   category spec definition. Record match / mismatch / not defined as a fact.
-   Do not conclude the BL spec is wrong based on this alone.
+
 
 
 #### Step S5. Compile specs section of report

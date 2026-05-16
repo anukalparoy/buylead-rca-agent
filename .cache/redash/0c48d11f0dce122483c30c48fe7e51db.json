@@ -1,0 +1,28 @@
+[
+  {
+    "bl_display_id": 144062373875,
+    "bl_title": "BLDC Ceiling Fan Conversion Kit",
+    "bl_mcat_id": 69017,
+    "quantity": "3",
+    "quantity_unit": "Piece",
+    "bl_approval_date": "2026-05-11T11:41:40.352",
+    "tov_flag": "Y",
+    "model_predicted_aov_band": "Upto 1,000",
+    "final_aov_band": "Rs. 100 - 200",
+    "product_price": -1.0,
+    "final_price_range": "MCAT Q1 - MCAT Q3",
+    "predicted_aov_median": 150.0,
+    "category_bl_median": -1.0,
+    "category_bl_q1": 34.0,
+    "category_bl_q3": 750.0,
+    "population_median": 50.0,
+    "population_q1": 11.0,
+    "population_q3": 250.0,
+    "caps_price_q1": -1.0,
+    "caps_price_q3": -1.0,
+    "actual_requirement_type": null,
+    "predicted_requirement_type": 3,
+    "predicted_req_typ_probability": 0.17,
+    "retail_flag": 1.0
+  }
+]

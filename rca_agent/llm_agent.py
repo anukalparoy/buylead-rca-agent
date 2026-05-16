@@ -207,6 +207,7 @@ Additional rules:
   specs are only retained for the last 30 days." Then move on to the next
   attribute if selected. Do not attempt any spec reasoning.
 - Do not ask the user about call transcripts or recording verification.
+- Do not ask the user about comparing product specs against seller-side category specs. Skip that step entirely.
 """
 
     initial_user_message = f"""

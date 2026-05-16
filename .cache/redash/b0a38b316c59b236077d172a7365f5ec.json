@@ -1,0 +1,28 @@
+[
+  {
+    "bl_display_id": 144218590085,
+    "bl_title": "Empty Plastic Water Bottle",
+    "bl_mcat_id": 43850,
+    "quantity": "500",
+    "quantity_unit": "Piece",
+    "bl_approval_date": "2026-05-13T22:10:42.658",
+    "tov_flag": "P",
+    "model_predicted_aov_band": "1,000 to 3,000",
+    "final_aov_band": "Rs. 1,000 to 3,000",
+    "product_price": -1.0,
+    "final_price_range": "MCAT Q1 - MCAT Q3",
+    "predicted_aov_median": 2000.0,
+    "category_bl_median": -1.0,
+    "category_bl_q1": 1450.0,
+    "category_bl_q3": 4000.0,
+    "population_median": 4.0,
+    "population_q1": 3.0,
+    "population_q3": 8.0,
+    "caps_price_q1": -1.0,
+    "caps_price_q3": -1.0,
+    "actual_requirement_type": null,
+    "predicted_requirement_type": 1,
+    "predicted_req_typ_probability": 0.96,
+    "retail_flag": 0.0
+  }
+]
